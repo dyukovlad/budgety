@@ -133,6 +133,26 @@ let budgetController = (function() {
             }
         },
 
+        // --- Local Storage stuff ---
+        storeData: function() {
+          localStorage.setItem('data', JSON.stringify(data));
+        },
+
+        deleteData: function() {
+          localStorage.removeItem('data');
+        },
+
+        getStoredData: function() {
+          localData = JSON.parse(localStorage.getItem('data'));
+          return localData;
+        },
+
+        updateData: function(StoredData) {
+          data.totals = StoredData.totals;
+          data.budget = StoredData.budget;
+          data.percentage = StoredData.percentage;
+        },
+
         testing: function(){
             console.log(data);
         },
@@ -325,6 +345,37 @@ let controller = (function(budgetCtrl, UICtrl){
 
     };
 
+    let loadData = function() {
+        let storedData, newIncItem, newExpItem;
+
+        // 1. load the data from the local storage
+        storedData = budgetCtrl.getStoredData();
+
+        if (storedData) {
+          // 2. insert the data into the data structure
+          budgetCtrl.updateData(storedData);
+
+          // 3. Create the Income Object
+          storedData.allItems.income.forEach(function(cur) {
+            newIncItem = budgetCtrl.addItem('income', cur.description, cur.value);
+            UICtrl.addListItem(newIncItem, 'income');
+          });
+
+          // 4. Create the Expense Objects
+          storedData.allItems.expense.forEach(function(cur) {
+            newExpItem = budgetCtrl.addItem('expense', cur.description, cur.value);
+            UICtrl.addListItem(newExpItem, 'expense');
+          });
+
+          // 5. Display the Budget
+          budget = budgetCtrl.getBudget();
+          UICtrl.displayBudget(budget);
+
+          // 6. Display the Percentages
+          updatePercentages();
+        }
+  };
+
     let updateBudget = function() {
         //1. Calculate budget
         budgetCtrl.calculateBudget();
@@ -370,6 +421,9 @@ let controller = (function(budgetCtrl, UICtrl){
 
             // 6. Calculate and update percentages
             updatePercentages();
+
+            // 7. save to local storage
+            budgetCtrl.storeData();
         }
     };
 
@@ -413,6 +467,7 @@ let controller = (function(budgetCtrl, UICtrl){
             percentage: -1
             });
             setupEventListeners();
+            loadData();
         }
     };
 

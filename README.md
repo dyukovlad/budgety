@@ -1,6 +1,6 @@
 # Budget app
 
-Project made on the Javascript course by Jonas.io
+Project made on the Javascript
 
 Re-designed and implemented LocalStorage
 
